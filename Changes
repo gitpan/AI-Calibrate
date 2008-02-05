@@ -1,0 +1,6 @@
+Revision history for Perl extension AI::Calibrate.
+
+0.01  Thu Jan 24 11:37:31 2008
+	- original version; created by h2xs 1.23 with options
+		-XA -n AI::Calibrate
+
