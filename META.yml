@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:                AI-Calibrate
-version:             1.0
+version:             1.1
 abstract:            Perl module for producing probabilities from classifier scores
 license:             ~
 author:              

@@ -2,6 +2,7 @@ Changes
 Makefile.PL
 MANIFEST
 README
-t/AI-Calibrate.t
+t/AI-Calibrate-1.t
+t/AI-Calibrate-NB.t
 lib/AI/Calibrate.pm
 META.yml                                 Module meta-data (added by MakeMaker)

@@ -6,7 +6,7 @@ use strict;
 use warnings;
 
 use vars qw($VERSION);
-$VERSION = "1.0";
+$VERSION = "1.1";
 
 require Exporter;
 
@@ -21,6 +21,7 @@ our %EXPORT_TAGS = (
         qw(
               calibrate
               score_prob
+              print_mapping
             )
     ]
 );
@@ -104,6 +105,9 @@ SCORE onto a probability like this:
          .2  > SCORE >= .7        prob = 3/4
          .02 > SCORE              prob = 0
 
+For a realistic example of classifier calibration, see the test file
+t/AI-Calibrate-NB.t, which uses the AI::NaiveBayes1 module to train a Naive
+Bayes classifier then calibrates it using this module.
 
 =cut
 
@@ -260,9 +264,43 @@ sub score_prob {
 }
 
 
+=item B<print_mapping>
 
+This is a simple utility function that takes the structure returned by
+B<calibrate> and prints out a simple list of lines describing the mapping
+created.
 
+Example calling form:
 
+  print_mapping($calibrated);
+
+Sample output:
+
+  1.00 > SCORE >= 1.00     prob = 1.000
+  1.00 > SCORE >= 0.71     prob = 0.667
+  0.71 > SCORE >= 0.39     prob = 0.000
+  0.39 > SCORE >= 0.00     prob = 0.000
+
+These ranges are not necessarily compressed/optimized, as this sample output
+shows.
+
+=back
+
+=cut
+sub print_mapping {
+    my($calibrated) = @_;
+    my $last_bound = 1.0;
+    for my $tuple (@$calibrated) {
+        my($bound, $prob) = @$tuple;
+        printf("%0.2f > SCORE >= %0.2f     prob = %0.3f\n",
+               $last_bound, $bound, $prob);
+        $last_bound = $bound;
+    }
+    if ($last_bound != 0) {
+        printf("%0.2f > SCORE >= %0.2f     prob = %0.3f\n",
+               $last_bound, 0, 0);
+    }
+}
 
 =head1 DETAILS
 
