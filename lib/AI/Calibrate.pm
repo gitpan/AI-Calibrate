@@ -6,7 +6,7 @@ use strict;
 use warnings;
 
 use vars qw($VERSION);
-$VERSION = "1.1";
+$VERSION = "1.2";
 
 require Exporter;
 
@@ -321,7 +321,7 @@ paper referenced below.
 
 =head1 EXPORT
 
-This module exports two functions: calibrate and score_prob.
+This module exports three functions: calibrate, score_prob and print_mapping.
 
 =head1 BUGS
 
@@ -329,10 +329,9 @@ None known.  This implementation is straightforward but inefficient (its time
 is O(n^2) in the length of the data series).  A linear time algorithm is
 known, and in a later version of this module I'll probably implement it.
 
-TO DO: Write tests to check for AI::NaiveBayes1, and if it's installed, use it
-to actually demonstrate real classifier calibration.
-
 =head1 SEE ALSO
+
+The AI::NaiveBayes1 perl module.
 
 My paper "PAV and the ROC Convex Hull" has a good discussion of the PAV
 algorithm, including examples:

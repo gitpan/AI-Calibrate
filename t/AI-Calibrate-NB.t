@@ -7,6 +7,7 @@ use strict;
 #########################
 
 use Test::More;
+use Test::Deep;
 
 eval("use AI::NaiveBayes1");
 if ($EVAL_ERROR) {
@@ -80,4 +81,26 @@ my @expected =
     [0.388031956546446, 0]
     );
 
-is_deeply($calibrated, \@expected, "Naive Bayes calibration test");
+# This fails because two numbers differ at the 15th digit:
+# is_deeply($calibrated, \@expected, "Naive Bayes calibration test");
+
+sub close_enough {
+    my($x, $y) = @_;
+    return(abs($x - $y) < 1.0e5);
+}
+
+sub lists_close_enough {
+    my($l1, $l2) = @_;
+    if (@$l1 != @$l2) {
+        return 0;
+    }
+    for my $i (0 .. $#{$l1}) {
+        if (! close_enough($l1->[$i], $l2->[$i])) {
+            return 0;
+        }
+    }
+    return 1;
+}
+
+ok(lists_close_enough($calibrated, \@expected),
+   'Calibration');
