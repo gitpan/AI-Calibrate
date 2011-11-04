@@ -6,7 +6,7 @@ use strict;
 use warnings;
 
 use vars qw($VERSION);
-$VERSION = "1.2";
+$VERSION = "1.3";
 
 require Exporter;
 
@@ -244,8 +244,6 @@ like this:
     my $prob = score_prob($score);
     print "Estimated probability: $prob\n";
  }
-
-=back
 
 =cut
 

@@ -31,9 +31,11 @@
          }
       },
       "runtime" : {
-         "requires" : {}
+         "requires" : {
+            "Test::More" : 0
+         }
       }
    },
    "release_status" : "stable",
-   "version" : "1.2"
+   "version" : "1.3"
 }

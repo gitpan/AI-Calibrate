@@ -7,7 +7,6 @@ use strict;
 #########################
 
 use Test::More;
-use Test::Deep;
 
 eval("use AI::NaiveBayes1");
 if ($EVAL_ERROR) {
