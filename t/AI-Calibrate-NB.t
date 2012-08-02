@@ -4,8 +4,6 @@ use strict;
 # Before `make install' is performed this script should be runnable with
 # `make test'. After `make install' it should work as `perl AI-Calibrate.t'
 
-#########################
-
 use Test::More;
 
 eval("use AI::NaiveBayes1");
@@ -71,35 +69,42 @@ for my $inst (@instances) {
 my $calibrated = calibrate(\@points, 0); # not sorted
 
 print "Mapping:\n";
-
 print_mapping($calibrated);
 
-my @expected = 
-  ( [1, 1],
-    [0.711310665804783, 0.666666666666667],
-    [0.388031956546446, 0]
-    );
+my(@expected) =
+  (
+   [0.779495793582905, 1],
+   [0.535425255450615, 0.666666666666667]
+  );
+
+for my $i (0 .. $#expected) {
+    print "$i = @{$expected[$i]}\n";
+}
 
 # This fails because two numbers differ at the 15th digit:
 # is_deeply($calibrated, \@expected, "Naive Bayes calibration test");
 
 sub close_enough {
     my($x, $y) = @_;
-    return(abs($x - $y) < 1.0e5);
+    return(abs($x - $y) < 1.0e-5);
 }
 
 sub lists_close_enough {
-    my($l1, $l2) = @_;
-    if (@$l1 != @$l2) {
+    my($got, $expected) = @_;
+    if (@$got != @$expected) {
         return 0;
     }
-    for my $i (0 .. $#{$l1}) {
-        if (! close_enough($l1->[$i], $l2->[$i])) {
-            return 0;
+    for my $i (0 .. $#{$got}) {
+        for my $elem (0, 1) {
+            if (! close_enough($got->[$i][$elem], $expected->[$i][$elem])) {
+                diag(sprintf( "Got: %f\n", $got->[$i]));
+                diag(sprintf( "Expected: %f\n", $expected->[$i]));
+                return 0;
+            }
         }
     }
     return 1;
 }
 
 ok(lists_close_enough($calibrated, \@expected),
-   'Calibration');
+   'Calibration of NB1 results');

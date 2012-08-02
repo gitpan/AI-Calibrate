@@ -1,12 +1,11 @@
 package AI::Calibrate;
-# $Id$
 
 use 5.008008;
 use strict;
 use warnings;
 
 use vars qw($VERSION);
-$VERSION = "1.3";
+$VERSION = "1.4";
 
 require Exporter;
 
@@ -27,13 +26,13 @@ our %EXPORT_TAGS = (
 );
 
 our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
+our @EXPORT = qw( );
 
-our @EXPORT = qw(
-               );
+use constant DEBUG => 1;
 
-our $VERSION = '0.01';
-
-use constant DEBUG => 0;
+# Structure slot names
+use constant SCORE => 0;
+use constant PROB  => 1;
 
 =head1 NAME
 
@@ -150,42 +149,53 @@ sub calibrate {
         }
     }
 
-    #  Copy the data over so pav can clobber the class field
+    #  Copy the data over so PAV can clobber the PROB field
     my $new_data = [ map([@$_], @$data) ];
 
     #   If not already sorted, sort data decreasing by score
     if (!$sorted) {
-        $new_data = [ sort { $b->[0] <=> $a->[0] } @$new_data ];
+        $new_data = [ sort { $b->[SCORE] <=> $a->[SCORE] } @$new_data ];
     }
 
-    pav($new_data);
+    PAV($new_data);
+
+    if (DEBUG) {
+        print("After PAV, vector is:\n");
+        print_vector($new_data);
+    }
 
     my(@result);
-    my $last_prob = 999;
+    my( $last_prob, $last_score);
+
+    push(@$new_data, [-1e10, 0]);
 
     for my $pair (@$new_data) {
+        print "Seeing @$pair\n" if DEBUG;
         my($score, $prob) = @$pair;
-        if ($prob < $last_prob) {
-            push(@result, [$score, $prob] );
-            $last_prob = $prob;
+        if (defined($last_prob) and $prob < $last_prob) {
+            print("Pushing [$last_score, $last_prob]\n") if DEBUG;
+            push(@result, [$last_score, $last_prob] );
         }
+        $last_prob = $prob;
+        $last_score = $score;
     }
 
     return \@result;
 }
 
 
-sub pav {
+sub PAV {
     my ( $result ) = @_;
 
     for ( my $i = 0; $i < @$result - 1; $i++ ) {
-        if ( $result->[$i][1] < $result->[ $i + 1 ][1] ) {
-            $result->[$i][1] = ( $result->[$i][1] + $result->[ $i + 1 ][1] ) / 2;
-            $result->[ $i + 1 ][1] = $result->[$i][1];
+        if ( $result->[$i][PROB] < $result->[ $i + 1 ][PROB] ) {
+            $result->[$i][PROB] =
+                ( $result->[$i][PROB] + $result->[ $i + 1 ][PROB] ) / 2;
+            $result->[ $i + 1 ][PROB] = $result->[$i][PROB];
             print "Averaging elements $i and ", $i + 1, "\n" if DEBUG;
 
             for ( my $j = $i - 1; $j >= 0; $j-- ) {
-                if ( $result->[$j][1] < $result->[ $i + 1 ][1] ) {
+                if ( $result->[$j][PROB] < $result->[ $i + 1 ][PROB] ) {
                     my $d = ( $i + 1 ) - $j + 1;
                     flatten( $result, $j, $d );
                 }
@@ -197,30 +207,34 @@ sub pav {
     }
 }
 
+sub print_vector {
+    my($vec) = @_;
+    for my $pair (@$vec) {
+        print join(", ", @$pair), "\n";
+    }
+}
+
+
 sub flatten {
     my ( $vec, $start, $len ) = @_;
     if (DEBUG) {
         print "Flatten called on vec, $start, $len\n";
         print "Vector before: \n";
-        for my $pair (@$vec) {
-            print join(", ", @$pair), "\n";
-        }
+        print_vector($vec);
     }
 
     my $sum = 0;
     for my $i ( $start .. $start + $len-1 ) {
-        $sum += $vec->[$i][1];
+        $sum += $vec->[$i][PROB];
     }
     my $avg = $sum / $len;
     print "Sum = $sum, avg = $avg\n" if DEBUG;
     for my $i ( $start .. $start + $len -1) {
-        $vec->[$i][1] = $avg;
+        $vec->[$i][PROB] = $avg;
     }
     if (DEBUG) {
         print "Vector after: \n";
-        for my $pair (@$vec) {
-            print join(", ", @$pair), "\n";
-        }
+        print_vector($vec);
     }
 }
 
@@ -290,12 +304,12 @@ sub print_mapping {
     my $last_bound = 1.0;
     for my $tuple (@$calibrated) {
         my($bound, $prob) = @$tuple;
-        printf("%0.2f > SCORE >= %0.2f     prob = %0.3f\n",
+        printf("%0.3f > SCORE >= %0.3f     prob = %0.3f\n",
                $last_bound, $bound, $prob);
         $last_bound = $bound;
     }
     if ($last_bound != 0) {
-        printf("%0.2f > SCORE >= %0.2f     prob = %0.3f\n",
+        printf("%0.3f > SCORE >= %0.3f     prob = %0.3f\n",
                $last_bound, 0, 0);
     }
 }
@@ -351,7 +365,7 @@ Tom Fawcett, E<lt>tom.fawcett@gmail.comE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2008 by Tom Fawcett
+Copyright (C) 2008-2012 by Tom Fawcett
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.8 or,

@@ -44,12 +44,11 @@ my $points = [
 
 my $calibrated_expected =
   [
-   [.9,    1 ],
-   [.7,  3/4 ],
-   [.45, 2/3 ],
-   [.3,  1/2 ],
-   [.2,  1/3 ],
-   [.02,   0 ]
+   [0.8, 1],
+   [0.5, 0.75],
+   [0.35, 0.666666666666667],
+   [0.27, 0.5],
+   [0.1, 0.333333333333333]
   ];
 
 my $calibrated_got = calibrate( $points, 1 );
@@ -87,16 +86,21 @@ for (1 .. 10) {
 my @test_estimates =
   ( [100, 1],
     [.9,    1 ],
-    [.8,   3/4],
+    [.8,   1],
     [.7,  3/4 ],
-    [.5,  2/3 ],
+    [.5,  3/4 ],
     [.45, 2/3 ],
-    [.35, 1/2 ],
+    [.35, 2/3 ],
     [.3,  1/2 ],
     [.2,  1/3 ],
     [.02,   0 ],
     [.00001, 0]
 );
+
+
+print "Using this mapping:\n";
+print_mapping($calibrated_got);
+print;
 
 for my $pair (@test_estimates) {
     my($score, $prob_expected) = @$pair;
