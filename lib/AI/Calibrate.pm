@@ -5,7 +5,7 @@ use strict;
 use warnings;
 
 use vars qw($VERSION);
-$VERSION = "1.4";
+$VERSION = "1.5";
 
 require Exporter;
 
@@ -28,7 +28,7 @@ our %EXPORT_TAGS = (
 our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
 our @EXPORT = qw( );
 
-use constant DEBUG => 1;
+use constant DEBUG => 0;
 
 # Structure slot names
 use constant SCORE => 0;

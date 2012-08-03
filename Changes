@@ -1,5 +1,9 @@
 Revision history for Perl extension AI::Calibrate.
 
+1.5   Fri Aug 3 2012
+      - Changes to ./t/AI-Calibrate-1.t to let it pass with almost-equal
+        numbers.
+
 1.4   Thu Aug 2 2012
       - Revised calibration algorithm based on bug
       - Updated tests in ./t

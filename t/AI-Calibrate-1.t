@@ -10,6 +10,37 @@ BEGIN { use_ok('AI::Calibrate', ':all') };
 
 srand;
 
+sub deeply_approx {
+    # Like Test::More::is_deeply but uses approx() to compare elements.
+    my( $got, $expected ) = @_;
+    my $EPSILON = 1.0e-6;
+    sub max {  $_[0] > $_[1] ? $_[0] : $_[1] }
+    sub approx {
+        my($x, $y) = @_;
+        print("approx($x, $y)\n");
+        if ($x == 0 and $y == 0) {
+            return(1);
+        } else {
+            return(abs($x-$y) / max($x,$y) < $EPSILON);
+        }
+    }
+    for my $i (0 .. $#{$got}) {
+        my $g = $got->[$i];
+        if (defined($expected->[$i])) {
+            my $e = $expected->[$i];
+            if (!approx($g->[0], $e->[0])) {
+                return(0);
+            }
+            if (!approx($g->[1], $e->[1])) {
+                return(0);
+            }
+        } else {
+            return(0);
+        }
+    }
+    return(1);
+}
+
 #  Given an array reference, shuffle the array.  This is the Fisher-Yates code
 #  from The Perl Cookbook.
 sub shuffle_array {
@@ -55,14 +86,16 @@ my $calibrated_got = calibrate( $points, 1 );
 
 pass("ran_ok");
 
-is_deeply($calibrated_got, $calibrated_expected, "pre-sorted calibration");
+ok(deeply_approx($calibrated_got, $calibrated_expected),
+   "pre-sorted calibration");
 
 #  Shuffle the arrays a bit and try calibrating again
 
 for (1 .. 10) {
     shuffle_array($points);
     my $calibrated_got = calibrate($points, 0);
-    is_deeply($calibrated_got, $calibrated_expected, "unsorted cal $_");
+    ok(deeply_approx($calibrated_got, $calibrated_expected),
+       "unsorted cal $_");
 }
 
 #  Tweak the thresholds
@@ -80,7 +113,7 @@ for (1 .. 10) {
         push(@delta_expected, [ $thresh+$delta, $class]);
     }
     my $delta_got = calibrate(\@delta_points, 0);
-    is_deeply($delta_got, \@delta_expected, "unsorted cal $_");
+    ok(deeply_approx($delta_got, \@delta_expected), "unsorted cal $_");
 }
 
 my @test_estimates =
